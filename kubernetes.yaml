@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: kube-monkey-demo
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: kube-monkey-demo-app
+    spec:
+      containers:
+      - name: app
+        image: kube-monkey-demo-img:v1
+        imagePullPolicy: IfNotPresent
+        command:
+        - /go/bin/kube-monkey-demo
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GREETING
+          value: "Hello Chaos!"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-monkey-demo
+  labels:
+    foo: bar
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: kube-monkey-demo-app
